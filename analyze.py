@@ -91,6 +91,6 @@ def generate_timeline_ascii_with_mactime(input_file="timeline.body", output_file
         input_file
     ], stdout=False, outfile=output_file)
 
-def generate_timeline(disk_img_path, partition={}):
+def generate_timeline(disk_img_path, partition={}, output_file=b"timeline.csv"):
     generate_timeline_fls(disk_img_path=disk_img_path, partition=partition)
-    generate_timeline_ascii_with_mactime()
+    generate_timeline_ascii_with_mactime(output_file=output_file)
