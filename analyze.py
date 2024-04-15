@@ -2,6 +2,7 @@ import utils
 import re
 import json
 import yaml
+from tqdm import tqdm
 
 
 ###Check exist before ??????????????
@@ -62,6 +63,9 @@ def get_main_partition(partitions):
     main_partition = max(partitions, key=lambda x:x['size_in_bytes'])
     return main_partition
 
+def get_partition_from_index(partitions):
+    main_partition = map(partitions, key=lambda x:x['size_in_bytes'])
+    return main_partition
 
 '''def analyze(disk_img_path):
     partitions = list_partitions(disk_img_path=disk_img_path)
@@ -138,7 +142,8 @@ def load_yaml_file(filename):
 def get_files_to_extract_list_using_yaml_file(yaml_data, fls_spllitted=[]):
     out1 = []
     out2 = []
-    for entry in yaml_data:
+    #for member in tqdm(members):
+    for entry in tqdm(yaml_data):
         items = yaml.safe_load(entry['out'])
         for item in items:
             if "dest_dir" in item and "ToMatch" in item:
@@ -196,7 +201,8 @@ def run_analysis_tools(list_with_cmd=[]):
     utils.create_dir("./extracted")
     with open("./extracted/extracted_with_tools_commands.txt", 'w') as file:
         prev_command = ""
-        for entry in list_with_cmd:
+        for entry in tqdm(list_with_cmd):
+            #for entry in list_with_cmd:
             command = entry[4]
             stdout = entry[3]
             argv = command.split(' ')
