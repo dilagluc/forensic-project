@@ -96,7 +96,7 @@ def generate_timeline_ascii_with_mactime(input_file="timeline.body", output_file
 
 def generate_timeline(disk_img_path, partition={}, output_file=b"timeline.csv"):
     fls_out = execute_fls_and_save(disk_img_path=disk_img_path, partition=partition)
-    generate_timeline_ascii_with_mactime(output_file=output_file)
+    #generate_timeline_ascii_with_mactime(output_file=output_file)
     return fls_out
 
 
@@ -164,21 +164,21 @@ def get_files_to_extract_list_using_yaml_file(yaml_data, fls_spllitted=[]):
                                     if  item['dir'] == False:
                                         dest = i[2]  + "/Analysis/" +i[1]
                                         src = i[2]  + "/" +i[1]
-                                        to_add = (command['ANY'].format(input=src, output=dest),)
+                                        to_add = (command['ANY'].format(input=utils.fixpath(src), output=utils.fixpath(dest)),)
                                         new_extract.append(tuple(i + to_add))
                                     elif item['dir'] == True:
-                                        to_add = (command['ANY'].format(input=item['dest_dir'], output=item['dest_dir'] + "/Analysis/analysis"),)
+                                        to_add = (command['ANY'].format(input=utils.fixpath(item['dest_dir']), output=utils.fixpath(item['dest_dir'] + "/Analysis/analysis")),)
                                         new_extract.append(tuple(i + to_add))
                                 else:
                                     if i[1].endswith(key) and  item['dir'] == False:
                                         dest = i[2]  + "/" +i[1]
-                                        to_add = (command[key].format(input=src, output=dest),)
+                                        to_add = (command[key].format(input=utils.fixpath(src), output=utils.fixpath(dest)),)
                                         new_extract.append(tuple(i + to_add))
                                     elif i[1].endswith(key) and  item['dir'] == True:
-                                        to_add = (command[key].format(input=item['dest_dir'], output=item['dest_dir']+ "/Analysis/analysis"),)
+                                        to_add = (command[key].format(input=utils.fixpath(item['dest_dir']), output=utils.fixpath(item['dest_dir']+ "/Analysis/analysis")),)
                                         new_extract.append(tuple(i + to_add))
                 out2 = out2 + new_extract
-                print(out2)
+                #print(out2)
     return out1, out2
 
 
@@ -189,7 +189,7 @@ def extract_files_with_icat(disk_img_path, partition, list_of_files=[]):
             inode = entry[0]
             dest = entry[2]  + "/" +entry[1]
             utils.create_dir(entry[2])
-            execute_icat_and_save(disk_img_path, partition, inode, output_file=dest)
+            execute_icat_and_save(disk_img_path, partition, inode, output_file=utils.fixpath(dest))
             file.write(str(entry) + '\n')
 
 def run_analysis_tools(list_with_cmd=[]):
@@ -197,11 +197,12 @@ def run_analysis_tools(list_with_cmd=[]):
     with open("./extracted/extracted_with_tools_commands.txt", 'w') as file:
         prev_command = ""
         for entry in list_with_cmd:
-            command = entry[3]
-            stdout = entry[2]
+            command = entry[4]
+            stdout = entry[3]
+            argv = command.split(' ')
+            argv[0] = utils.fixpath(argv[0])
+            print(command)
             if(prev_command != command):
-                utils.execute([
-                command 
-                ], stdout=stdout)
+                utils.execute(argv, stdout=stdout)
             prev_command = command
             file.write(str(entry) + '\n')

@@ -44,7 +44,7 @@ def execute(argv, env=os.environ, cwd=None, stdout=True, outfile="", root=False)
 
     if root and platform.system() == 'Linux':
         argv = ["sudo"] + argv
-
+    #print(argv)
     if stdout:
         return execute_stdout(argv, env, cwd)
     elif len(outfile)>0:
@@ -64,3 +64,6 @@ def dict_list_to_json(out):
 def create_dir(path):
     if not os.path.exists(path):
         os.makedirs(path)
+
+def fixpath(path):
+    return os.path.abspath(os.path.expanduser(path))
