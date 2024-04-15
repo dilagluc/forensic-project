@@ -15,4 +15,4 @@ Now you can run
 ```
 python3 main.py
 ```
-
+All extraction part can work on linux, but you need a windows machine to execute Zimmerman tools part
