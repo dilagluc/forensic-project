@@ -60,3 +60,7 @@ def rmdir(path):
 
 def dict_list_to_json(out):
     return json.dumps(out, indent=2)
+
+def create_dir(path):
+    if not os.path.exists(path):
+        os.makedirs(path)

@@ -1,0 +1,209 @@
+- name: SYSTEM_FILE
+  path: null
+  out: |
+    - name: Setupapi
+      path: "/Windows/Inf/setupapi.dev.log"
+      dest_dir: "/Registry/"
+      ToMatch: ".*/Windows/Inf/setupapi\\.dev\\.log.*"
+      commands: ""
+      stdout: False
+      dir: False
+
+    - name: Setupapi log
+      path: "/Windows/setupapi.log"
+      dest_dir: "/Registry/"
+      ToMatch: ".*/Windows/Inf/setupapi\\.log.*"
+      commands: ""
+      stdout: False
+      dir: False
+    
+    - name: SRUDB
+      path: "/Windows/system32/sru/"
+      dest_dir: "/sru/"
+      ToMatch: ".*/Windows/system32/sru/.*SRUDB\\.dat"
+      commands: |
+        - ANY : srum_dump2.exe --SRUM_INFILE {input} --XLSX_OUTFILE {output}_srum.xlsx
+      stdout: False
+      dir: False
+
+    - name: Recent file Cache
+      path: "/Windows/AppCompat/Programs/RecentFileCache.bcf"
+      dest_dir: "/MRU/Prog/recentfilecache/"
+      ToMatch: ".*/Windows/AppCompat/Programs/RecentFileCache\\.bcf.*"
+      commands: ""
+      stdout: False
+      dir: False
+
+    - name: Logfile
+      path: "/$LogFile"
+      dest_dir: "/Filesystem/"
+      ToMatch: ".*/Windows/System32/config/AppEvent\\.evt.*"
+      commands: |
+        - ANY : MFTECmd.exe -f" {input} --csv {output}_logfile.txt
+      stdout: False
+      dir: False
+    
+    - name: MFT
+      path: "/$MFT"
+      dest_dir: "/Filesystem/"
+      ToMatch: ".*\\$MFT\\|.*"
+      commands: |
+        - ANY : MFTECmd.exe -f" {input} --csv {output}_mft.txt
+      stdout: False
+      dir: False
+
+- name: SYSTEM_DIR
+  path: null
+  out: |
+    - name: Hives
+      path: "/Windows/System32/config"
+      dest_dir: "/Registry/"
+      ToMatch: ".*/Windows/System32/config.*\\b(?:SAM(?:\\.LOG\\d*)?|SECURITY(?:\\.LOG\\d*)?|SYSTEM(?:\\.LOG\\d*)?|DEFAULT(?:\\.LOG\\d*)?|SOFTWARE(?:\\.LOG\\d*)?)\\b"
+      commands: |
+        - SYSTEM : rip.exe -r {input} -p usbstor > {output}_usbstor.txt
+        - SYSTEM : rip.exe -r {input} -p mountdev > {output}_mountdev.txt
+        - SOFTWARE: rip.exe -r {input} -p networklist >  {output}_networklist.txt
+      stdout: False
+      dir: False
+  
+    - name: Event logs
+      path: "/Windows/System32/winevt/logs"
+      dest_dir: "/OSLogs/evtx/"
+      ToMatch: ".*/Windows/System32/winevt/logs.*\\b(?:Application|System|Bits|EventTracing|Powershell|RemoteAssistance|RemoteDesktopServices|SmbClient|SmbServer|TaskScheduler|Windows Defender|Windows Firewall|Winlogon|Security|WMI-Activity).*\\.evtx\\b"
+      commands: |
+        - ANY : EvtxECmd.exe -d {input} --csv {output}_prefetch.csv -q
+      dir: True
+      stdout: False
+
+    - name: Prefetch
+      path: "/Windows/Prefetch"
+      dest_dir: "/MRU/Prog/prefetch/"
+      ToMatch: ".*/Windows/Prefetch.*\\.pf\\b"
+      commands: |
+        - ANY : PECmd.exe -d {input} --csv {output}_prefetch.csv -q
+      dir: True
+      stdout: False
+
+    - name: Recycle Bin
+      path: ""
+      dest_dir: "/Recycle_bin/"
+      ToMatch: ".*\\$Recycle\\.Bin.*"
+      commands: |
+        - ANY : RBCmd.exe -d {input} --csv {output}_recycleBin.csv -q
+      dir: True
+      stdout: False
+
+- name: USER_FILE
+  path: null
+  out: |
+    - etl: "/AppData/Local/Microsoft/Windows/Explorer/ExplorerStartupLog.etl"
+      dest_dir: "/OSLogs/etl/"
+      ToMatch: ".*ExplorerStartupLog\\.etl.*"
+      commands: ""
+      stdout: False
+      dir: False
+
+    - etl: "/AppData/Local/Microsoft/Windows/Explorer/ExplorerStartupLog_RunOnce.etl"
+      dest_dir: "/OSLogs/etl/"
+      ToMatch: ".*ExplorerStartupLog_RunOnce\\.etl.*"
+      commands: ""
+      stdout: False
+      dir: False
+
+    - etl: "/AppData/Local/Packages/Microsoft.Windows.Cortana_cw5n1h2txyewy/TempState/Traces/CortanaTrace1.etl"
+      dest_dir: "/OSLogs/etl/"
+      ToMatch: ".*CortanaTrace1\\.etl.*"
+      commands: ""
+      stdout: False
+      dir: False
+
+    - pshist: "/AppData/Roaming/Microsoft/Windows/PowerShell/PSReadline/ConsoleHost_history.txt"
+      dest_dir: "/OSLogs/pshist/"
+      ToMatch: ".*ConsoleHost_history\\.txt.*"
+      commands: ""
+      stdout: False
+      dir: False
+
+- name: USER_DIR
+  path: null
+  out: |
+    - name: NTUSER
+      path: "/"
+      dest_dir: "/Registry/"
+      ToMatch: ".*/Users/.*ntuser\\.dat\\|.*"
+      commands: |
+        - ANY : rip.exe -r {input} -p mp2 > {output}_mp2.txt
+        - ANY : rip.exe -r {input} -p userassist > {output}_userassist.txt
+        - ANY : rip.exe -r {input} -p resentdocs > {output}_recentdocs.txt
+      stdout: False
+      dir: False
+
+    - name: UsrClass
+      path: "/AppData/Local/Microsoft/Windows/"
+      dest_dir: "/Registry/"
+      ToMatch: ".*/AppData/Local/Microsoft/Windows/.*Usrclass\\.dat\\|.*"
+      commands: |
+        - ANY : rip.exe -r {input} -p shellbags > {output}_shellbags.txt
+      stdout: False
+      dir: False
+
+    - name: usrclass_xp
+      path: "/Local Settings/Application Data/Microsoft/Windows/"
+      dest_dir: "/Registry/"
+      ToMatch: ".*/Local Settings/Application Data/Microsoft/Windows/.*usrclass\\.dat\\|.*"
+      commands: ""
+      stdout: False
+      dir: False
+
+    - name: jmp Automatic Destinations
+      path: "/AppData/Roaming/Microsoft/Windows/Recent/AutomaticDestinations"
+      dest_dir: "/MRU/Files/jmp/Automatic_Destinations"
+      ToMatch: ".*/AppData/Roaming/Microsoft/Windows/Recent/AutomaticDestinations.*"
+      commands: |
+        - ANY : JLECmd.exe -d {input} --csv {output}_jmp_AutomaticDestinations.csv -q
+      dir: True
+      stdout: False
+
+    - name: jmp CustomDestinations
+      path: "/AppData/Roaming/Microsoft/Windows/Recent/CustomDestinations"
+      dest_dir: "/MRU/Files/jmp/Custom_Destinations"
+      ToMatch: ".*/AppData/Roaming/Microsoft/Windows/Recent/CustomDestinations.*"
+      commands: |
+        - ANY : JLECmd.exe -d {input} --csv {output}_jmp_CustomDestinations.csv -q
+      dir: True
+      stdout: False
+
+    - name: lnk Profile
+      path: "/AppData/Roaming/Microsoft/Windows/Recent"
+      dest_dir: "/MRU/Files/lnk"
+      ToMatch: .*/AppData/Roaming/Microsoft/Windows/Recent.*\.lnk
+      commands: |
+        - ANY : LECmd.exe -d {input} --csv {output}_lnk_profile.csv -q
+      dir: True
+      stdout: False
+
+
+
+
+- name: FILE_ADS
+  path: null
+  out: |
+    - usnjrnl: "/$Extend/$UsnJrnl"
+      dest_dir: "/Filesystem/"
+      ads_name: "$J"
+      dir: False
+
+
+- name: BROWSER
+  path: null
+  out: |
+    - iehist: "/AppData/Local/Microsoft/Windows/WebCache"
+      dest_dir: "/MRU/Files/iehist/"
+      isRecursive: false
+      stringToMatch: null
+      dir: False
+    - iehist_xp: "/Local Settings/History/History.IE5"
+      dest_dir: "/MRU/Files/iehist/"
+      isRecursive: true
+      stringToMatch: null
+      dir: False
