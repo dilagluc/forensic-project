@@ -13,6 +13,6 @@ Go to `Tools` and unzip all zipped Files
 Now you can run 
 
 ```
-python3 main.py <disk_file>
+python3 main.py <disk_file_path>
 ```
 All extraction part can work on linux, but you need a windows machine to execute Zimmerman tools part
