@@ -1,4 +1,4 @@
-- name: SYSTEM_FILE
+- name: SYSTEM_1
   path: null
   out: |
     - name: Setupapi
@@ -22,7 +22,7 @@
       dest_dir: "/sru/"
       ToMatch: ".*/Windows/system32/sru/.*SRUDB\\.dat"
       commands: |
-        - ANY : srum_dump2.exe --SRUM_INFILE {input} --XLSX_OUTFILE {output}_srum.xlsx
+        - ANY : ./Tools/srum_dump/srum_dump2.6.exe --SRUM_INFILE {input} --XLSX_OUTFILE {output}_srum.xlsx
       stdout: False
       dir: False
 
@@ -39,7 +39,7 @@
       dest_dir: "/Filesystem/"
       ToMatch: ".*/Windows/System32/config/AppEvent\\.evt.*"
       commands: |
-        - ANY : MFTECmd.exe -f" {input} --csv {output}_logfile.txt
+        - ANY : ./Tools/MFTECmd.exe -f" {input} --csv {output}_logfile.txt
       stdout: False
       dir: False
     
@@ -48,11 +48,11 @@
       dest_dir: "/Filesystem/"
       ToMatch: ".*\\$MFT\\|.*"
       commands: |
-        - ANY : MFTECmd.exe -f" {input} --csv {output}_mft.txt
+        - ANY : ./Tools/MFTECmd.exe -f" {input} --csv {output}_mft.txt
       stdout: False
       dir: False
 
-- name: SYSTEM_DIR
+- name: SYSTEM_2
   path: null
   out: |
     - name: Hives
@@ -60,9 +60,9 @@
       dest_dir: "/Registry/"
       ToMatch: ".*/Windows/System32/config.*\\b(?:SAM(?:\\.LOG\\d*)?|SECURITY(?:\\.LOG\\d*)?|SYSTEM(?:\\.LOG\\d*)?|DEFAULT(?:\\.LOG\\d*)?|SOFTWARE(?:\\.LOG\\d*)?)\\b"
       commands: |
-        - SYSTEM : rip.exe -r {input} -p usbstor > {output}_usbstor.txt
-        - SYSTEM : rip.exe -r {input} -p mountdev > {output}_mountdev.txt
-        - SOFTWARE: rip.exe -r {input} -p networklist >  {output}_networklist.txt
+        - SYSTEM : ./Tools/RegRipper3.0-master/rip.exe -r {input} -p usbstor > {output}_usbstor.txt
+        - SYSTEM : ./Tools/RegRipper3.0-master/rip.exe -r {input} -p mountdev > {output}_mountdev.txt
+        - SOFTWARE: ./Tools/RegRipper3.0-master/rip.exe -r {input} -p networklist >  {output}_networklist.txt
       stdout: False
       dir: False
   
@@ -71,7 +71,7 @@
       dest_dir: "/OSLogs/evtx/"
       ToMatch: ".*/Windows/System32/winevt/logs.*\\b(?:Application|System|Bits|EventTracing|Powershell|RemoteAssistance|RemoteDesktopServices|SmbClient|SmbServer|TaskScheduler|Windows Defender|Windows Firewall|Winlogon|Security|WMI-Activity).*\\.evtx\\b"
       commands: |
-        - ANY : EvtxECmd.exe -d {input} --csv {output}_prefetch.csv -q
+        - ANY : ./Tools/EvtxECmd/EvtxECmd.exe -d {input} --csv {output}_prefetch.csv -q
       dir: True
       stdout: False
 
@@ -80,7 +80,7 @@
       dest_dir: "/MRU/Prog/prefetch/"
       ToMatch: ".*/Windows/Prefetch.*\\.pf\\b"
       commands: |
-        - ANY : PECmd.exe -d {input} --csv {output}_prefetch.csv -q
+        - ANY : ./Tools/PECmd.exe -d {input} --csv {output}_prefetch.csv -q
       dir: True
       stdout: False
 
@@ -89,11 +89,11 @@
       dest_dir: "/Recycle_bin/"
       ToMatch: ".*\\$Recycle\\.Bin.*"
       commands: |
-        - ANY : RBCmd.exe -d {input} --csv {output}_recycleBin.csv -q
+        - ANY : ./Tools/RBCmd.exe -d {input} --csv {output}_recycleBin.csv -q
       dir: True
       stdout: False
 
-- name: USER_FILE
+- name: USER_1
   path: null
   out: |
     - etl: "/AppData/Local/Microsoft/Windows/Explorer/ExplorerStartupLog.etl"
@@ -124,7 +124,7 @@
       stdout: False
       dir: False
 
-- name: USER_DIR
+- name: USER_2
   path: null
   out: |
     - name: NTUSER
@@ -132,9 +132,9 @@
       dest_dir: "/Registry/"
       ToMatch: ".*/Users/.*ntuser\\.dat\\|.*"
       commands: |
-        - ANY : rip.exe -r {input} -p mp2 > {output}_mp2.txt
-        - ANY : rip.exe -r {input} -p userassist > {output}_userassist.txt
-        - ANY : rip.exe -r {input} -p resentdocs > {output}_recentdocs.txt
+        - ANY : ./Tools/RegRipper3.0-master/rip.exe -r {input} -p mp2 > {output}_mp2.txt
+        - ANY : ./Tools/RegRipper3.0-master/rip.exe -r {input} -p userassist > {output}_userassist.txt
+        - ANY : ./Tools/RegRipper3.0-master/rip.exe -r {input} -p resentdocs > {output}_recentdocs.txt
       stdout: False
       dir: False
 
@@ -143,7 +143,7 @@
       dest_dir: "/Registry/"
       ToMatch: ".*/AppData/Local/Microsoft/Windows/.*Usrclass\\.dat\\|.*"
       commands: |
-        - ANY : rip.exe -r {input} -p shellbags > {output}_shellbags.txt
+        - ANY : ./Tools/RegRipper3.0-master/rip.exe -r {input} -p shellbags > {output}_shellbags.txt
       stdout: False
       dir: False
 
@@ -160,7 +160,7 @@
       dest_dir: "/MRU/Files/jmp/Automatic_Destinations"
       ToMatch: ".*/AppData/Roaming/Microsoft/Windows/Recent/AutomaticDestinations.*"
       commands: |
-        - ANY : JLECmd.exe -d {input} --csv {output}_jmp_AutomaticDestinations.csv -q
+        - ANY : ./Tools/JLECmd.exe -d {input} --csv {output}_jmp_AutomaticDestinations.csv -q
       dir: True
       stdout: False
 
@@ -169,7 +169,7 @@
       dest_dir: "/MRU/Files/jmp/Custom_Destinations"
       ToMatch: ".*/AppData/Roaming/Microsoft/Windows/Recent/CustomDestinations.*"
       commands: |
-        - ANY : JLECmd.exe -d {input} --csv {output}_jmp_CustomDestinations.csv -q
+        - ANY : ./Tools/JLECmd.exe -d {input} --csv {output}_jmp_CustomDestinations.csv -q
       dir: True
       stdout: False
 
@@ -178,20 +178,10 @@
       dest_dir: "/MRU/Files/lnk"
       ToMatch: .*/AppData/Roaming/Microsoft/Windows/Recent.*\.lnk
       commands: |
-        - ANY : LECmd.exe -d {input} --csv {output}_lnk_profile.csv -q
+        - ANY : ./Tools/LECmd.exe -d {input} --csv {output}_lnk_profile.csv -q
       dir: True
       stdout: False
 
-
-
-
-- name: FILE_ADS
-  path: null
-  out: |
-    - usnjrnl: "/$Extend/$UsnJrnl"
-      dest_dir: "/Filesystem/"
-      ads_name: "$J"
-      dir: False
 
 
 - name: BROWSER
